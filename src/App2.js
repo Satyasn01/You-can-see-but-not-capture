@@ -82,7 +82,6 @@ function App() {
             zindex: 9,
             width: 640,
             height: 480,
-            opacity:0,
           }}
         />
 
@@ -98,8 +97,7 @@ function App() {
             zindex: 8,
             width: 640,
             height: 480,
-            opacity:0,
-          }} 
+          }}
         />
 
 {isCellPhoneDetected && (

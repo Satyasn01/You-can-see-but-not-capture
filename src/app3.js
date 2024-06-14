@@ -1,58 +1,44 @@
 // Import dependencies
 import React, { useRef, useState, useEffect } from "react";
 import * as tf from "@tensorflow/tfjs";
-// 1. TODO - Import required model here
-// e.g. import * as tfmodel from "@tensorflow-models/tfmodel";
 import * as cocossd from "@tensorflow-models/coco-ssd";
-
 import Webcam from "react-webcam";
 import "./App.css";
-// 2. TODO - Import drawing utility here
-// e.g. import { drawRect } from "./utilities";
 import { drawRect } from "./utilities";
 
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const [isCellPhoneDetected, setIsCellPhoneDetected] = useState(false);
+
   // Main function
   const runCoco = async () => {
-    // 3. TODO - Load network 
-    // e.g. const net = await cocossd.load();
     const net = await cocossd.load();
-
-    //  Loop and detect hands
     setInterval(() => {
       detect(net);
     }, 10);
   };
 
   const detect = async (net) => {
-    // Check data is available
     if (
       typeof webcamRef.current !== "undefined" &&
       webcamRef.current !== null &&
       webcamRef.current.video.readyState === 4
     ) {
-      // Get Video Properties
       const video = webcamRef.current.video;
       const videoWidth = webcamRef.current.video.videoWidth;
       const videoHeight = webcamRef.current.video.videoHeight;
 
-      // Set video width
       webcamRef.current.video.width = videoWidth;
       webcamRef.current.video.height = videoHeight;
 
-      // Set canvas height and width
       canvasRef.current.width = videoWidth;
       canvasRef.current.height = videoHeight;
 
-      // 4. TODO - Make Detections
-      // e.g. const obj = await net.detect(video);
-      const obj=await net.detect(video);
+      const obj = await net.detect(video);
       console.log(obj);
 
-      const cellPhoneDetected = obj.some(prediction => prediction.class === "cell phone"|| prediction.class === "remote");
+      const cellPhoneDetected = obj.some(prediction => prediction.class === "cell phone" || prediction.class === "remote");
       takeAction(cellPhoneDetected);
 
       const ctx = canvasRef.current.getContext("2d");
@@ -62,6 +48,11 @@ function App() {
 
   const takeAction = (detected) => {
     setIsCellPhoneDetected(detected);
+    if (detected) {
+      setTimeout(() => {
+        setIsCellPhoneDetected(false);
+      }, 10000); // Change this to the amount of time you want the block screen to stay
+    }
   };
 
   useEffect(() => { runCoco() }, []);
@@ -82,7 +73,7 @@ function App() {
             zindex: 9,
             width: 640,
             height: 480,
-            opacity:0,
+            opacity: 0, // Make the webcam feed invisible
           }}
         />
 
@@ -98,11 +89,27 @@ function App() {
             zindex: 8,
             width: 640,
             height: 480,
-            opacity:0,
-          }} 
+            opacity: 0, // Make the canvas invisible
+          }}
         />
 
-{isCellPhoneDetected && (
+<div style={{
+  position: "absolute",
+  top: "50%",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  transform: "translateY(-50%)",
+  zIndex: 10,
+  color: "#FFFFFF",
+  fontSize: "2em", // Increase the font size
+  width: "100%",
+  textAlign: "center",
+  animation: "scroll 10s linear infinite",
+}}>
+  PAN: CNAT7372910,ADDHAR:3239239991
+</div>
+
+        {isCellPhoneDetected && (
           <div style={{
             position: "absolute",
             top: 0,
@@ -110,7 +117,7 @@ function App() {
             width: "100%",
             height: "100%",
             backgroundColor: "#FF6347",
-            zIndex: 10,
+            zIndex: 11,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
